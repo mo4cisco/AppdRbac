@@ -44,6 +44,10 @@ variable "globalwsname" {
   type = string
 }
 
+variable "root_password" {
+  type = string
+}
+
 resource "null_resource" "vm_node_init" {
   provisioner "file" {
     source = "scripts/"
@@ -51,7 +55,7 @@ resource "null_resource" "vm_node_init" {
     connection {
       type = "ssh"
       host = "${local.appvmip}"
-      user = "root"
+      user = "auslab"
       password = "${local.root_password}"
       port = "22"
       agent = false
@@ -60,28 +64,28 @@ resource "null_resource" "vm_node_init" {
 
   provisioner "remote-exec" {
     inline = [
-        "chmod +x /tmp/rbac.sh",
+        "sudo chmod +x /tmp/rbac.sh",
         "${local.download}",
-        "/tmp/rbac.sh ${local.nbrapm} ${local.nbrma} ${local.nbrsim} ${local.nbrnet}",
-        ". /home/ec2-user/environment/workshop/application.env",
-        "echo echoing install",
-        "echo ${local.install}",
-        "echo echoing accesskey",
-        "echo $APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY",
-        "echo replacement",
-        "echo ${local.install} > /tmp/installcmd.sh",
-        "sed 's/fillmein/'$APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY'/g' /tmp/installcmd.sh > /tmp/installexec.sh",
-	"/opt/appdynamics/zeroagent/bin/zfictl uninstall",
-	"rm -rf /opt/appdynamics/zeroagent",
-        "chmod +x /tmp/installexec.sh",
-        "echo installing",
-        "/tmp/installexec.sh",
-        "chmod -R 777 /opt/appdynamics/zeroagent/agents/java/javaagent/ver21.5.0.32605/lib",
+        "sudo /tmp/rbac.sh ${local.nbrapm} ${local.nbrma} ${local.nbrsim} ${local.nbrnet}",
+        "sudo . /home/ec2-user/environment/workshop/application.env",
+        "sudo echo echoing install",
+        "sudo echo ${local.install}",
+        "sudo echo echoing accesskey",
+        "sudo echo $APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY",
+        "sudo echo replacement",
+        "sudo echo ${local.install} > /tmp/installcmd.sh",
+        "sudo sed 's/fillmein/'$APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY'/g' /tmp/installcmd.sh > /tmp/installexec.sh",
+	"sudo /opt/appdynamics/zeroagent/bin/zfictl uninstall",
+	"sudo rm -rf /opt/appdynamics/zeroagent",
+        "sudo chmod +x /tmp/installexec.sh",
+        "sudo echo installing",
+        "sudo /tmp/installexec.sh",
+        "sudo chmod -R 777 /opt/appdynamics/zeroagent/agents/java/javaagent/ver21.5.0.32605/lib",
     ]
     connection {
       type = "ssh"
       host = "${local.appvmip}" 
-      user = "root"
+      user = "auslab"
       password = "${local.root_password}"
       port = "22"
       agent = false
@@ -98,6 +102,7 @@ locals {
   nbrma = data.terraform_remote_state.global.outputs.nbrma
   nbrsim = data.terraform_remote_state.global.outputs.nbrsim
   nbrnet = data.terraform_remote_state.global.outputs.nbrnet
-  root_password = yamldecode(data.terraform_remote_state.global.outputs.root_password)
+  #root_password = yamldecode(data.terraform_remote_state.global.outputs.root_password)
+  root_password = var.root_password
 }
 
