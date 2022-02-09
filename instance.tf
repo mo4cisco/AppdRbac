@@ -65,7 +65,7 @@ resource "null_resource" "vm_node_init" {
   provisioner "remote-exec" {
     inline = [
         "sudo chmod +x /tmp/rbac.sh",
-        "${local.download}",
+        "sudo ${local.download}",
         "sudo /tmp/rbac.sh ${local.nbrapm} ${local.nbrma} ${local.nbrsim} ${local.nbrnet}",
         "sudo . /home/ec2-user/environment/workshop/application.env",
         "sudo echo echoing install",
